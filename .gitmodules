@@ -1,0 +1,6 @@
+[submodule "third_party/deltanmf"]
+	path = third_party/deltanmf
+	url = https://github.com/rohitsinghlab/deltanmf
+[submodule "third_party/scGPT"]
+	path = third_party/scGPT
+	url = https://github.com/bowang-lab/scgpt
