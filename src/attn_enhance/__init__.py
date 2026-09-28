@@ -7,19 +7,14 @@ Attention-NMF = same DeltaNMF solver with attention similarity as ``S_E``.
 from .prior import GenePrior, ScgptPriors
 from .extract_scgpt import (
     extract_scgpt_priors,
-    extract_scgpt_attention,
-    extract_scgpt_embeddings,
     load_scgpt_model,
     paper_attention_map,
+    tokenize_cells,
 )
 from .scgpt_attention import (
-    ScGPTMultiheadAttention,
-    ScGPTLayer,
-    ScGPTGenerator,
-    ScGPTPretrainedModel,
     LoadReport,
+    attention_logits,
     load_pretrained_scgpt,
-    bin_expression,
     rank_normalize_attention,
 )
 from .deltanmf_bridge import build_S_E_scgpt, fit_deltanmf, DeltaNMFFit, write_S_E_files
@@ -35,10 +30,8 @@ from .gene_graph import (
 )
 from .compare import (
     run_program_discovery_experiment,
-    run_attention_vs_embedding_nmf,
     format_comparison,
     ExperimentResult,
-    ComparisonResult,
     ArmResult,
     DEFAULT_ALPHAS,
 )
@@ -63,17 +56,12 @@ __all__ = [
     "GenePrior",
     "ScgptPriors",
     "extract_scgpt_priors",
-    "extract_scgpt_attention",
-    "extract_scgpt_embeddings",
     "load_scgpt_model",
     "paper_attention_map",
-    "ScGPTMultiheadAttention",
-    "ScGPTLayer",
-    "ScGPTGenerator",
-    "ScGPTPretrainedModel",
+    "tokenize_cells",
     "LoadReport",
+    "attention_logits",
     "load_pretrained_scgpt",
-    "bin_expression",
     "rank_normalize_attention",
     "build_S_E_scgpt",
     "fit_deltanmf",
@@ -88,10 +76,8 @@ __all__ = [
     "top_edges",
     "upper_triangle_correlation",
     "run_program_discovery_experiment",
-    "run_attention_vs_embedding_nmf",
     "format_comparison",
     "ExperimentResult",
-    "ComparisonResult",
     "ArmResult",
     "DEFAULT_ALPHAS",
     "SyntheticAtlas",

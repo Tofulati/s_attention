@@ -70,7 +70,7 @@ A^{(c,l,h)}_{ij}
 \text{attention of query gene } i \text{ to key gene } j.
 $$
 
-scGPT’s FlashAttention path does **not** return scores, and flash-attn does not run on CPU. `src/attn_enhance/scgpt_attention.py` is a pure-PyTorch replica of the flash-attn layers scGPT was pretrained with (`FlashscGPTMHA`, from the `dev-temp` branch), with identical parameter names. From it we take the raw $Q K^\top$ of `Wqkv` in the chosen layer, then rank-normalize by row and then by column, and average over heads. This is the paper's Methods recipe and the one in the [Attention GRN tutorial](https://github.com/bowang-lab/scGPT/blob/main/tutorials/Tutorial_Attention_GRN.ipynb). Inputs are binned per cell and prefixed with `<cls>`, as in pretraining.
+scGPT’s FlashAttention path does **not** return scores, and flash-attn does not run on CPU. Without it, scGPT's own `TransformerModel` builds `nn.TransformerEncoderLayer`, which holds the checkpoint's packed `Wqkv` projection as `in_proj_weight`; `src/attn_enhance/scgpt_attention.py` renames those keys and otherwise uses the vendored model unchanged. From it we take the raw $Q K^\top$ of the chosen layer, then rank-normalize by row and then by column, and average over heads, as in the [Attention GRN tutorial](https://github.com/bowang-lab/scGPT/blob/main/tutorials/Tutorial_Attention_GRN.ipynb). Inputs go through scGPT's `binning` and `tokenize_and_pad_batch` (`<cls>` prepended with value 0), as in the tutorial.
 
 **Design choice (important ablation):** which layers / heads to keep.
 

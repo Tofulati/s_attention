@@ -40,49 +40,6 @@ def affinity_from_attention(
     return S
 
 
-def affinity_from_embeddings(
-    gene_embeddings: np.ndarray,
-    *,
-    method: str = "corrcoef_relu",
-    knn: int | None = None,
-    row_normalize: bool = False,
-) -> np.ndarray:
-    """Global prior S_emb from scGPT gene embeddings (DeltaNMF default).
-
-    DeltaNMF script: ``corrcoef(embeddings)`` → ReLU → zero diagonal.
-    """
-    E = np.asarray(gene_embeddings, dtype=np.float64)
-    if E.ndim != 2:
-        raise ValueError(f"gene_embeddings must be 2D; got {E.shape}")
-    n = E.shape[0]
-    if n < 2:
-        raise ValueError("need at least 2 genes")
-
-    if method == "corrcoef_relu":
-        cts = np.corrcoef(E)
-        if not np.isfinite(cts).all():
-            cts = np.nan_to_num(cts, nan=0.0, posinf=0.0, neginf=0.0)
-        S = np.maximum(0.0, cts)
-    elif method == "cosine":
-        norms = np.linalg.norm(E, axis=1, keepdims=True) + 1e-12
-        E_n = E / norms
-        cos = E_n @ E_n.T
-        S = np.clip(cos, 0.0, None)
-    else:
-        raise ValueError(f"unknown method: {method!r}")
-
-    np.fill_diagonal(S, 0.0)
-
-    if knn is not None and knn < n - 1:
-        S = _knn_sparsify(S, knn=knn)
-        S = 0.5 * (S + S.T)
-        np.fill_diagonal(S, 0.0)
-
-    if row_normalize:
-        S = normalize_graph(S, mode="row")
-    return S
-
-
 def affinity_from_expression(
     X_cells_by_genes: np.ndarray,
     *,

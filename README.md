@@ -42,10 +42,10 @@ Open [`notebooks/01_scgpt_attention_vs_embeddings_nmf.ipynb`](notebooks/01_scgpt
 | `third_party/deltanmf` | **Embedding-NMF** = DeltaNMF (`S_E` + solver) |
 | `third_party/scGPT` | scGPT + Attention-GRN tutorial (`Wqkv`) |
 | `src/attn_enhance/deltanmf_bridge.py` | Thin wrapper: call DeltaNMF, build `S_E` their way |
-| `src/attn_enhance/scgpt_attention.py` | Paper-exact PyTorch replica of scGPT's pretraining attention layers (strict checkpoint load) |
-| `src/attn_enhance/extract_scgpt.py` | **Novel:** `S_att` via the paper's attention-map recipe (+ DeltaNMF `S_E` for alignment) |
-| `tests/test_scgpt_attention.py` | Replica vs PyTorch / upstream / tutorial references (`pytest tests`) |
-| `src/attn_enhance/compare.py` | Same DeltaNMF solver; swap / mix priors |
+| `src/attn_enhance/scgpt_attention.py` | Checkpoint → scGPT's own `TransformerModel` (flash-attn `Wqkv` renamed to `in_proj`); tutorial `Q K^T` extraction |
+| `src/attn_enhance/extract_scgpt.py` | **Novel:** `S_att` via the Attention-GRN tutorial recipe (+ DeltaNMF `S_E` for alignment) |
+| `tests/` | Weights vs checkpoint, torch attention vs flash `Wqkv` formula, rank-norm vs tutorial code, pipeline smoke (`pytest tests`) |
+| `src/attn_enhance/compare.py` | Same `run_onestage_deltanmf` pipeline for every arm; swap / mix priors |
 | `notebooks/01_scgpt_attention_vs_embeddings_nmf.ipynb` | Dry-run workbook |
 | `checkpoints/scgpt/` | Pretrained scGPT folder |
 
@@ -64,7 +64,7 @@ from attn_enhance import (
 )
 a = make_synthetic_expression(n_cells=20, n_genes=24, seed=0)
 priors = extract_scgpt_priors(a.X, a.gene_names, 'checkpoints/scgpt', dry_run=True)
-r = run_program_discovery_experiment(a.X, a.gene_names, priors, n_components=4, nmf_iters=40)
+r = run_program_discovery_experiment(a.X, a.gene_names, priors, n_components=4, max_iter=300)
 print(format_comparison(r))
 "
 ```
@@ -80,6 +80,6 @@ from attn_enhance import (
 genes = genes_from_scgpt_vocab('checkpoints/scgpt', n_genes=32, seed=0)
 a = make_synthetic_expression(n_cells=40, n_genes=len(genes), gene_names=genes, seed=0)
 priors = extract_scgpt_priors(a.X, a.gene_names, 'checkpoints/scgpt', max_cells=16, dry_run=False)
-print(format_comparison(run_program_discovery_experiment(a.X, a.gene_names, priors, nmf_iters=40)))
+print(format_comparison(run_program_discovery_experiment(a.X, a.gene_names, priors, max_iter=300)))
 "
 ```
